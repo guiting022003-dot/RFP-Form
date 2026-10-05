@@ -3027,6 +3027,7 @@ function cancelEditRFP(){
   initRFP();
   const dashTab = Array.from(document.querySelectorAll('.nav-tab')).find(t=>t.textContent.trim()==='Dashboard');
   if(dashTab) showView('dash', dashTab);
+}
 async function sendToGoogleSheets(rfp){
 
   try{
@@ -3062,7 +3063,7 @@ async function sendToGoogleSheets(rfp){
   }
 
 }
-`
+  
 function submitRFP(){
   const errs=validateForm();
   if(errs.length){
