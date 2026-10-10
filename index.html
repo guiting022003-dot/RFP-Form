@@ -3027,32 +3027,39 @@ function cancelEditRFP(){
   initRFP();
   const dashTab = Array.from(document.querySelectorAll('.nav-tab')).find(t=>t.textContent.trim()==='Dashboard');
   if(dashTab) showView('dash', dashTab);
+}
 async function sendToGoogleSheets(rfp){
 
-    try{
+  try{
 
-        await fetch(
-            "https://script.google.com/macros/s/AKfycbxy8iDBIpq1WpAbTzF0k4JI9OSKywJQ49Mw9FrncTD446xHLc3XQdfWvpZPCgvS5kMS/exec",
-            {
-                method: "POST",
-                mode: "no-cors",
-                body: JSON.stringify(rfp)
-            }
-        );
+    const response = await fetch(
+    "https://script.google.com/macros/s/AKfycbxy8iDBIpq1WpAbTzF0k4JI9OSKywJQ49Mw9FrncTD446xHLc3XQdfWvpZPCgvS5kMS/exec",
+      {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+          rfpNo: rfp.rfpNo,
+          date: rfp.date,
+          payeeName: rfp.payee,
+          department: rfp.dept,
+          purpose: rfp.purpose,
+          amount: rfp.gross
+        })
+      }
+    );
 
-        console.log("Sent to Google Sheets");
-
-    } catch(error) {
-
-        console.error(error);
-        toast("Google Sheets sync failed","err");
-        return false;
-
-    }
-
+    console.log("Sent to Google Sheets");
     return true;
-}
 
+  }catch(error){
+
+    console.error(error);
+    toast("Google Sheets sync failed","err");
+    return false;
+
+  }
+
+}
   
 function submitRFP(){
   const errs=validateForm();
