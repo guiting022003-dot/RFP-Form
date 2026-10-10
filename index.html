@@ -3029,28 +3029,30 @@ function cancelEditRFP(){
   if(dashTab) showView('dash', dashTab);
 async function sendToGoogleSheets(rfp){
 
-  try{
+    try{
 
-    const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbxy8iDBIpq1WpAbTzF0k4JI9OSKywJQ49Mw9FrncTD446xHLc3XQdfWvpZPCgvS5kMS/exec",
-      {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(rfp)
-      }
-    );
+        await fetch(
+            "https://script.google.com/macros/s/AKfycbxy8iDBIpq1WpAbTzF0k4JI9OSKywJQ49Mw9FrncTD446xHLc3XQdfWvpZPCgvS5kMS/exec",
+            {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(rfp)
+            }
+        );
 
-    console.log("Sent to Google Sheets");
+        console.log("Sent to Google Sheets");
 
-  }catch(error){
+    } catch(error) {
 
-    console.error(error);
-    toast("Google Sheets sync failed","err");
-    return false;
+        console.error(error);
+        toast("Google Sheets sync failed","err");
+        return false;
 
-  }
+    }
 
+    return true;
 }
+
   
 function submitRFP(){
   const errs=validateForm();
