@@ -1918,7 +1918,7 @@ function submitLiquidation(){
       dept: ca.dept,
       purpose: 'Liquidation of '+liqTargetRfpNo,
       caRefRfpNo: liqTargetRfpNo,
-      status: 'pending',
+      status: 'pending_review',
       rows: filledRows.map(r=>({...r, caRef:{rfpNo:liqTargetRfpNo}})),
       gross: totalNew,
       net: totalNew,
@@ -3080,7 +3080,14 @@ function submitRFP(){
   const rfp=collectFormData(false);
   rfp.rfpNo  = rfpNo;
   rfp.id     = 'rfp_'+Date.now(); // always a fresh unique id
-  rfp.status = 'pending';
+  rfp.status = 'pending_review';
+  rfp.reviewedBy = '';
+rfp.reviewedDate = '';
+rfp.reviewedAt = '';
+
+rfp.approvedBy = '';
+rfp.approvedDate = '';
+rfp.approvedAt = '';
   rfp.createdAt = new Date().toISOString();
   rfp.createdBy = currentUser?.username;
   const saved = saveRFPRecord(rfp);
@@ -3316,22 +3323,36 @@ function renderDashboard(){
       if(r.status==='void_pending'){
         actionHtml += mkBtn('#f3f4f6','#6b7280','#d1d5db','✓ Approve Void','voided');
         actionHtml += mkBtn('var(--blue-pale)','var(--navy-light)','rgba(43,79,160,.2)','↩ Reject Void','pending');
-      } else if(r.status==='pending'){
-        actionHtml += mkBtn('#dcfce7','#166534','rgba(22,101,52,.2)','✓ Approve','approved');
-        actionHtml += mkBtn('var(--red-pale)','var(--red)','rgba(192,57,43,.2)','✕ Reject','rejected');
-      } else if(r.status==='approved'){
-        actionHtml += mkBtn('#ede9fe','#5b21b6','rgba(91,33,182,.25)','🚀 Release','released');
-      } else if(r.status==='released'){
-        actionHtml += `<span class="appr-label">🚀 Released</span>`;
-      } else if(r.status==='rejected'){
-        actionHtml += mkBtn('#fffbeb','#b45309','#fcd34d','↩ Reset to Pending','pending');
-      } else {
-        actionHtml += `<span class="appr-label" style="color:var(--g400)">${r.status||'—'}</span>`;
-      }
+      } else if(r.status==='pending_review'){
+    actionHtml += mkBtn(
+        '#dbeafe',
+        '#2563eb',
+        'rgba(37,99,235,.2)',
+        '🔍 Review',
+        'pending_approval'
+    );
+
+} else if(r.status==='pending_approval'){
+    actionHtml += mkBtn(
+        '#dcfce7',
+        '#166534',
+        'rgba(22,101,52,.2)',
+        '✓ Approve',
+        'approved'
+    );
+
+    actionHtml += mkBtn(
+        'var(--red-pale)',
+        'var(--red)',
+        'rgba(192,57,43,.2)',
+        '✕ Reject',
+        'rejected'
+    );
+}
       } // end non-liquidation-approved block
     } else {
       const isEncoder = currentUser?.role === 'encoder';
-      if(r.status === 'pending'){
+      if(r.status === 'pending_review'){
         // Check 7-day lock: if start date is more than 7 days ago, lock editing
         const rfpDate   = r.date ? new Date(r.date) : null;
         const today     = new Date(); today.setHours(0,0,0,0);
@@ -3786,7 +3807,12 @@ function massAction(status){
   if(currentUser?.role !== 'approver'){ toast('Approver access only','err'); return; }
   const checked = [...document.querySelectorAll('.row-chk:checked')];
   if(!checked.length){ toast('No records selected','err'); return; }
-  const labels = {approved:'Approve',rejected:'Reject',released:'Release'};
+  const labels = {
+    pending_approval:'Review',
+    approved:'Approve',
+    rejected:'Reject',
+    released:'Release'
+};
   if(!confirm(labels[status]+' '+checked.length+' selected record(s)?')) return;
   const repo = getRepo();
   const today = new Date().toISOString();
@@ -3796,6 +3822,17 @@ function massAction(status){
     const i = repo.findIndex(r=>r.id===chk.dataset.id);
     if(i<0) return;
     repo[i].status = status;
+    if(status==='pending_approval'){
+    repo[i].reviewedAt = today;
+    repo[i].reviewedDate = todayDate;
+    repo[i].reviewedBy = approverName;
+
+    if(!repo[i].sigs) repo[i].sigs={};
+    repo[i].sigs.reviewed = {
+        name: approverName,
+        date: todayDate
+    };
+}
     if(status==='approved'){
       repo[i].approvedAt=today; repo[i].approvedDate=todayDate;
       repo[i].approvedBy=approverName;
@@ -3855,7 +3892,15 @@ document.addEventListener('click',()=>{
 
 const STATUS_BADGE = {
   draft:    {cls:'sp-draft',    label:'✏️ Draft'},
-  pending:  {cls:'sp-pending',  label:'⏳ Pending Approval'},
+  pending_review: {
+    label: 'Pending Review',
+    cls: 'warn'
+},
+
+pending_approval: {
+    label: 'Pending Approval',
+    cls: 'info'
+},
   approved: {cls:'sp-approved', label:'✅ Approved'},
   released: {cls:'sp-released', label:'🚀 Released'},
   rejected: {cls:'sp-rejected', label:'❌ Rejected'},
@@ -3878,6 +3923,17 @@ function quickApprove(id,status,e){
     const approverDate = new Date().toISOString().split('T')[0];
     const today = new Date().toISOString();
     repo[i].status=status;
+    if(status === 'pending_approval'){
+    repo[i].reviewedBy = approverName;
+    repo[i].reviewedAt = today;
+    repo[i].reviewedDate = approverDate;
+
+    if(!repo[i].sigs) repo[i].sigs={};
+    repo[i].sigs.reviewed = {
+        name: approverName,
+        date: approverDate
+    };
+}
     if(status==='approved'){
       repo[i].approvedBy   = approverName;
       repo[i].approvedAt   = today;
