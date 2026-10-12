@@ -4787,6 +4787,16 @@ document.addEventListener('DOMContentLoaded',()=>{
   initRFP();
   for(let i=0;i<3;i++) addExpRow();
   seedDefaultAdmin();
+
+  // Fix: initialize Submit button visibility on first load
+  const firstTab = document.querySelector('.nav-tab');
+  if(firstTab){
+    showView('rfp', firstTab);
+  } else {
+    const submitBtn = document.getElementById('btn-submit-rfp');
+    if(submitBtn) submitBtn.style.display = '';
+  }
+
   if(!tryRestoreSession()){
     document.getElementById('auth-screen').style.display='flex';
   }
