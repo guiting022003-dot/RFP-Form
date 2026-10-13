@@ -2976,10 +2976,27 @@ function saveRepo(d){
 
         const response = await fetch(WEB_APP_URL);
         const data = await response.json();
+        const mappedData = data.map(r => ({
+
+    rfpNo: r.RFP_No || '',
+    reqType: r.Request_Type || '',
+    payee: r.Payee_Name || '',
+    dept: r.Department || '',
+    purpose: r.Purpose_Project || '',
+
+    gross: Number(r.Gross_Amount || 0),
+    net: Number(r.Net_Amount || 0),
+
+    status: (r.Status || '').toLowerCase(),
+
+    id: r.RFP_ID || '',
+    createdAt: r.Date_Created || ''
+
+}));
 
         localStorage.setItem(
             'uas_rfp_repo',
-            JSON.stringify(data)
+            JSON.stringify(mappedData)
         );
 
         console.log('Google Sheet synced');
