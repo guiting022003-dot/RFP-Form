@@ -2968,6 +2968,27 @@ function saveRepo(d){
     throw e; // re-throw so callers know it failed
   }
 }
+  async function syncFromGoogleSheet(){
+
+    try{
+
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+
+        localStorage.setItem(
+            'uas_rfp_repo',
+            JSON.stringify(data)
+        );
+
+        console.log('Google Sheet synced');
+
+    }catch(err){
+
+        console.error('Sheet Sync Failed:', err);
+
+    }
+
+}
 
 // saveDraft removed — all submissions go straight to pending
 
@@ -4840,6 +4861,8 @@ function deleteUser(uid){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  syncFromGoogleSheet();
+
   initRFP();
   for(let i=0;i<3;i++) addExpRow();
   seedDefaultAdmin();
