@@ -2946,7 +2946,9 @@ function collectFormData(isDraft){
     id:document.getElementById('rfp-no').value+'_'+Date.now(),
   };
 }
-
+const WEB_APP_URL =
+'https://script.google.com/macros/s/AKfycbxy8iDBIpq1WpAbTzF0k4JI90SKywJQ49Mw9FrncTD446xHLc3XQdfWvpZPCgvS5kMS/exec';
+  
 function getRepo(){ try{return JSON.parse(localStorage.getItem('uas_rfp_repo')||'[]')}catch{return[]} }
 function migrateRepo(){
   // One-time: any record with rfpNo but status='draft' that was submitted (has rows with amounts) → keep as-is
