@@ -3001,8 +3001,9 @@ function saveRepo(d){
 
         console.log('Google Sheet synced');
 
-renderRepository();
-renderDashboard();
+if(typeof renderDashboard === 'function'){
+    renderDashboard();
+}
 
     }catch(err){
 
