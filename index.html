@@ -4882,8 +4882,8 @@ function deleteUser(uid){
   renderUserTable(); toast('User removed');
 }
 
-document.addEventListener('DOMContentLoaded',async ()=>{
-  await syncFromGoogleSheet();
+document.addEventListener('DOMContentLoaded',()=>{
+  syncFromGoogleSheet();
 
   initRFP();
   for(let i=0;i<3;i++) addExpRow();
