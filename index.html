@@ -2982,6 +2982,9 @@ function saveRepo(d){
 
         console.log('Google Sheet synced');
 
+renderRepository();
+renderDashboard();
+
     }catch(err){
 
         console.error('Sheet Sync Failed:', err);
@@ -4860,8 +4863,8 @@ function deleteUser(uid){
   renderUserTable(); toast('User removed');
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
-  syncFromGoogleSheet();
+document.addEventListener('DOMContentLoaded',async ()=>{
+  await syncFromGoogleSheet();
 
   initRFP();
   for(let i=0;i<3;i++) addExpRow();
